@@ -1,0 +1,30 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "EZVIZ Smart Lock",
+        "description": "Connect your EZVIZ Smart Lock to Home Assistant.\n\nSecurity notice: Remote Unlock allows the door to be unlocked directly from Home Assistant. Enable this option only if you trust all Home Assistant administrators.",
+        "data": {
+          "email": "EZVIZ account email",
+          "password": "Password",
+          "device_serial": "Lock serial number",
+          "enable_remote_unlock": "Enable Remote Unlock"
+        }
+      },
+      "mfa": {
+        "title": "Two-factor authentication",
+        "description": "Enter the verification code sent by EZVIZ.",
+        "data": {
+          "mfa_code": "Verification code"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to EZVIZ.",
+      "invalid_auth": "Invalid verification code."
+    },
+    "abort": {
+      "already_configured": "This lock has already been configured."
+    }
+  }
+}

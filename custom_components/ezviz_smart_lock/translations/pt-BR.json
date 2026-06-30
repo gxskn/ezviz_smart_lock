@@ -1,0 +1,30 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "EZVIZ Smart Lock",
+        "description": "Conecte sua fechadura EZVIZ ao Home Assistant.\n\nAviso de segurança: o Remote Unlock permite destrancar a porta diretamente pelo Home Assistant. Ative esta opção somente se você confiar em todos os administradores do Home Assistant.",
+        "data": {
+          "email": "E-mail da conta EZVIZ",
+          "password": "Senha",
+          "device_serial": "Número de série da fechadura",
+          "enable_remote_unlock": "Ativar Remote Unlock"
+        }
+      },
+      "mfa": {
+        "title": "Autenticação em duas etapas",
+        "description": "Digite o código de verificação enviado pela EZVIZ.",
+        "data": {
+          "mfa_code": "Código de verificação"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Falha ao conectar.",
+      "invalid_auth": "Autenticação inválida."
+    },
+    "abort": {
+      "already_configured": "Esta fechadura já está configurada."
+    }
+  }
+}

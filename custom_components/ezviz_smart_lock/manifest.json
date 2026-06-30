@@ -1,0 +1,12 @@
+{
+  "domain": "ezviz_smart_lock",
+  "name": "EZVIZ Smart Lock",
+  "version": "1.0.0",
+  "documentation": "https://github.com/gxskn/ezviz_smart_lock",
+  "issue_tracker": "https://github.com/gxskn/ezviz_smart_lock/issues",
+  "requirements": ["pyezvizapi==1.0.5.0"],
+  "dependencies": [],
+  "codeowners": ["@gxskn"],
+  "iot_class": "cloud_push",
+  "config_flow": true
+}

@@ -1,0 +1,7 @@
+{
+  "name": "EZVIZ Smart Lock",
+  "content_in_root": false,
+  "render_readme": true,
+  "domains": ["lock"],
+  "iot_class": "cloud_push"
+}

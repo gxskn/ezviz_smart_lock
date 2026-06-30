@@ -262,6 +262,14 @@ If you find a bug or have a suggestion, please open an Issue on GitHub.
 
 ---
 
-## License
+## About this project
 
-MIT License
+I created this integration because I wanted to use my EZVIZ Smart Lock with Home Assistant, but I couldn't find an existing integration that met my needs.
+
+I'm not an experienced Python developer, so this project was developed entirely with the help of AI. I was responsible for defining the requirements, testing every feature, investigating the EZVIZ APIs, validating the results, and making the design and security decisions, while the implementation itself was largely generated with AI assistance.
+
+Because of that, there may still be bugs, edge cases, or opportunities to improve the code.
+
+That said, the primary goal of this project—to integrate my EZVIZ Smart Lock with Home Assistant—has been achieved, and it has been working reliably in my own environment.
+
+If you find any issues or have ideas for improvements, feel free to open an Issue or submit a Pull Request. Any contribution is greatly appreciated.

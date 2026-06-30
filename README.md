@@ -1,376 +1,268 @@
-\# EZVIZ Smart Lock for Home Assistant
+<div align="center">
 
+<img src="https://raw.githubusercontent.com/gxskn/ezviz_smart_lock/main/assets/logo.png" width="140">
 
+# EZVIZ Smart Lock
 
-A custom Home Assistant integration that adds support for EZVIZ Smart Locks using the official EZVIZ cloud APIs and MQTT push events.
+Real-time Home Assistant integration for EZVIZ Smart Locks using the official EZVIZ Cloud APIs and MQTT Push events.
 
+Supports automatic token renewal, two-factor authentication (MFA), real-time events and optional Remote Unlock.
 
+</div>
 
-Unlike polling-based integrations, this integration receives events in real time.
+---
 
+<p align="center">
 
+<img src="https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-blue?style=for-the-badge">
+<img src="https://img.shields.io/badge/MQTT-Real--Time-success?style=for-the-badge">
+<img src="https://img.shields.io/badge/MFA-Supported-green?style=for-the-badge">
+<img src="https://img.shields.io/badge/Remote%20Unlock-Optional-orange?style=for-the-badge">
 
-\---
+</p>
 
+---
 
+## Features
 
-\## Features
+✅ Real-time MQTT events
 
+✅ Native Home Assistant Lock entity
 
+✅ Remote Unlock (optional)
 
-\- 🔒 Lock entity
+✅ Automatic EZVIZ token renewal
 
-\- ⚡ Real-time MQTT events
+✅ Two-Factor Authentication (MFA)
 
-\- 👤 User identification for unlock events
+✅ Home Assistant Config Flow
 
-\- 🔑 Remote Unlock (optional)
+✅ English and Portuguese translations
 
-\- 🔄 Automatic token renewal
+✅ Automatic MQTT reconnection
 
-\- 📲 Two-factor authentication (MFA)
+✅ Device Registry support
 
-\- ☁ Cloud Push (no polling)
+---
 
-\- 🏠 Home Assistant Config Flow
-
-\- 🌐 English and Portuguese translations
-
-
-
-\---
-
-
-
-\## Installation
-
-
-
-\### HACS
-
-
-
-Coming soon.
-
-
-
-\### Manual
-
-
-
-Copy
-
-
-
-```
-
-custom\_components/ezviz\_smart\_lock
-
-```
-
-
-
-to
-
-
-
-```
-
-config/custom\_components/
-
-```
-
-
-
-Restart Home Assistant.
-
-
-
-Add the integration from:
-
-
-
-Settings → Devices \& Services → Add Integration
-
-
-
-Search for:
-
-
-
-```
-
-EZVIZ Smart Lock
-
-```
-
-
-
-\---
-
-
-
-\## Configuration
-
-
-
-The integration requires:
-
-
-
-\- EZVIZ account email
-
-\- EZVIZ password
-
-\- Lock serial number
-
-
-
-If your account uses MFA, you'll be prompted for the verification code during setup.
-
-
-
-\---
-
-
-
-\## Security
-
-
-
-\### Remote Unlock
-
-
-
-Remote Unlock is \*\*disabled by default\*\*.
-
-
-
-Enabling Remote Unlock allows the door to be unlocked directly from Home Assistant.
-
-
-
-For security reasons, enabling or disabling this feature requires removing and adding the integration again, forcing a new EZVIZ authentication (including MFA when enabled).
-
-
-
-No EZVIZ password is stored by the integration.
-
-
-
-\---
-
-
-
-\## Entity
-
-
-
-Creates one Lock entity:
-
-
-
-```
-
-lock.front\_door
-
-```
-
-
-
-State:
-
-
-
-\- Locked
-
-\- Unlocked (event-based)
-
-
-
-Attributes:
-
-
-
-\- Last user
-
-\- Last event
-
-\- Last event code
-
-\- Last alert
-
-\- Last event timestamp
-
-
-
-\---
-
-
-
-\## Events
-
-
-
-The integration fires the following Home Assistant event:
-
-
-
-```
-
-ezviz\_smart\_lock\_event
-
-```
-
-
-
-Example payload:
-
-
-
-```yaml
-
-event\_name: door\_opened
-
-user: John
-
-event\_code: 17011
-
-```
-
-
-
-Supported events:
-
-
-
-| Event | Description |
-
-|--------|-------------|
-
-| door\_opened | Door opened |
-
-| remote\_unlock | Remote unlock |
-
-| passcode\_added | Passcode added |
-
-
-
-\---
-
-
-
-\## Example automation
-
-
-
-Turn on hallway light when the door opens.
-
-
-
-```yaml
-
-alias: Hallway Light
-
-
-
-trigger:
-
-&#x20; - platform: event
-
-&#x20;   event\_type: ezviz\_smart\_lock\_event
-
-
-
-condition:
-
-&#x20; - condition: template
-
-&#x20;   value\_template: >
-
-&#x20;     {{ trigger.event.data.event\_name == 'door\_opened' }}
-
-
-
-action:
-
-&#x20; - service: light.turn\_on
-
-&#x20;   target:
-
-&#x20;     entity\_id: light.hallway
-
-```
-
-
-
-\---
-
-
-
-\## Known limitations
-
-
-
-Current versions of EZVIZ Smart Locks do not expose a reliable cloud endpoint to query the real-time lock state.
-
-
-
-For this reason, the lock entity is event-based:
-
-
-
-\- Door opened → unlocked
-
-\- Automatically returns to locked after a few seconds
-
-
-
-\---
-
-
-
-\## Supported devices
-
-
+## Supported devices
 
 Currently tested:
 
-
-
-\- EZVIZ DL05
-
-
+- EZVIZ DL05
 
 Other EZVIZ Smart Locks may also work.
 
+---
 
+## Installation
 
-\---
+### HACS
 
+1. Open HACS.
+2. Go to **Integrations**.
+3. Click the menu (**⋮**) → **Custom repositories**.
+4. Add:
 
+```
+https://github.com/gxskn/ezviz_smart_lock
+```
 
-\## Roadmap
+Category:
 
+```
+Integration
+```
 
+5. Search for **EZVIZ Smart Lock**.
+6. Install.
+7. Restart Home Assistant.
 
-\- Additional Smart Lock models
+---
 
-\- More event types
+### Manual Installation
 
-\- HACS repository
+Copy
 
-\- More translations
+```
+custom_components/ezviz_smart_lock
+```
 
+to
 
+```
+config/custom_components/
+```
 
-\---
+Restart Home Assistant.
 
+Go to:
 
+Settings → Devices & Services
 
-\## License
+Click:
 
+Add Integration
 
+Search for:
+
+```
+EZVIZ Smart Lock
+```
+
+---
+
+## Configuration
+
+The integration requires:
+
+- EZVIZ account email
+- EZVIZ password
+- Lock serial number
+
+If your account uses MFA, you'll be prompted to enter the verification code during setup.
+
+---
+
+## Security
+
+This integration was designed with security as a priority.
+
+### Remote Unlock
+
+Remote Unlock is disabled by default.
+
+Enabling this feature allows the door to be unlocked directly from Home Assistant.
+
+For security reasons, enabling or disabling Remote Unlock requires removing and adding the integration again, forcing a new EZVIZ authentication (including MFA when enabled).
+
+This behavior is intentional.
+
+### Security Model
+
+• EZVIZ passwords are never stored.
+
+• Remote Unlock is disabled by default.
+
+• Remote Unlock requires explicit user opt-in.
+
+• Enabling Remote Unlock requires a new EZVIZ authentication.
+
+• MFA is fully supported.
+
+• No sensitive information is written to Home Assistant logs.
+
+• MQTT is used only for receiving events.
+
+• Commands are sent using authenticated EZVIZ Cloud APIs.
+
+---
+
+## Home Assistant Entity
+
+Creates one Lock entity.
+
+Example:
+
+```
+lock.front_door
+```
+
+Supported states:
+
+- Locked
+- Unlocked (event-based)
+
+Attributes:
+
+| Attribute | Description |
+|------------|-------------|
+| last_user | User who opened the door |
+| last_event | Event identifier |
+| last_event_label | Human-readable event |
+| last_event_code | EZVIZ event code |
+| last_alert | Alert message |
+| last_event_time | Timestamp |
+
+---
+
+## Events
+
+The integration fires the following Home Assistant event:
+
+```
+ezviz_smart_lock_event
+```
+
+Example:
+
+```yaml
+event_name: door_opened
+user: John
+event_code: 17011
+```
+
+Supported events:
+
+| Event | Description |
+|--------|-------------|
+| door_opened | Door opened |
+| remote_unlock | Remote unlock |
+| passcode_added | Passcode added |
+
+---
+
+## Example Automation
+
+Turn on the hallway light when the door opens.
+
+```yaml
+alias: Hallway Light
+
+trigger:
+  - platform: event
+    event_type: ezviz_smart_lock_event
+
+condition:
+  - condition: template
+    value_template: >
+      {{ trigger.event.data.event_name == 'door_opened' }}
+
+action:
+  - service: light.turn_on
+    target:
+      entity_id: light.hallway
+```
+
+---
+
+## Known Limitations
+
+Current EZVIZ Smart Locks do not expose a reliable cloud endpoint to retrieve the real-time lock state.
+
+For this reason, the Lock entity is event-based.
+
+When the door is opened, the entity changes to **Unlocked** and automatically returns to **Locked** after a few seconds.
+
+---
+
+## Roadmap
+
+- Additional EZVIZ Smart Lock models
+- More event types
+- More translations
+- Community contributions
+
+---
+
+## Contributing
+
+Bug reports, feature requests and pull requests are welcome.
+
+If you find a bug or have a suggestion, please open an Issue on GitHub.
+
+---
+
+## License
 
 MIT License
-

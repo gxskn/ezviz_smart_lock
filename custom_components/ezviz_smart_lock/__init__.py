@@ -2,23 +2,27 @@
 
 from __future__ import annotations
 
-import logging
+import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 
 from .const import DOMAIN, PLATFORMS
 from .coordinator import EzvizCoordinator
 
-_LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+async def async_setup(hass: HomeAssistant, config: vol.Schema) -> bool:
     """Set up the EZVIZ Smart Lock integration."""
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> bool:
     """Set up EZVIZ Smart Lock from a config entry."""
     coordinator = EzvizCoordinator(hass, entry)
 
@@ -28,20 +32,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(
+        entry,
+        PLATFORMS,
+    )
 
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> bool:
     """Unload an EZVIZ Smart Lock config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        entry,
+        PLATFORMS,
+    )
 
     if not unload_ok:
         return False
 
-    coordinator = hass.data[DOMAIN].pop(entry.entry_id)
+    coordinator: EzvizCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
 
     await coordinator.async_stop()
+
+    if not hass.data[DOMAIN]:
+        hass.data.pop(DOMAIN)
 
     return True

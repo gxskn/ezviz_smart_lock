@@ -1,6 +1,5 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/gxskn/ezviz_smart_lock/main/assets/logo.png" width="140">
 
 # EZVIZ Smart Lock
 

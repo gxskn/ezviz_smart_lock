@@ -40,7 +40,7 @@ Supports automatic token renewal, two-factor authentication (MFA), real-time eve
 | Two-Factor Authentication (MFA) | ✅ |
 | Config Flow | ✅ |
 | Device Registry | ✅ |
-| English & Portuguese | ✅ |
+| English & Portuguese translations | ✅ |
 
 ---
 
@@ -175,13 +175,13 @@ Supported states:
 Attributes:
 
 | Attribute | Description |
-|------------|-------------|
-| last_user | User who opened the door |
-| last_event | Event identifier |
-| last_event_label | Human-readable event |
-| last_event_code | EZVIZ event code |
-| last_alert | Alert message |
-| last_event_time | Timestamp |
+|----------|-------------|
+| `last_user` | User who opened the door |
+| `last_event` | Event identifier |
+| `last_event_label` | Human-readable event |
+| `last_event_code` | EZVIZ event code |
+| `last_alert` | Alert message |
+| `last_event_time` | Timestamp |
 
 ---
 
@@ -204,10 +204,10 @@ event_code: 17011
 Supported events:
 
 | Event | Description |
-|--------|-------------|
-| door_opened | Door opened |
-| remote_unlock | Remote unlock |
-| passcode_added | Passcode added |
+|-------|-------------|
+| `door_opened` | Door opened |
+| `remote_unlock` | Remote unlock |
+| `passcode_added` | Passcode added |
 
 ---
 

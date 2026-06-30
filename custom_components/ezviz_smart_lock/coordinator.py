@@ -1,27 +1,40 @@
+"""Coordinator for the EZVIZ Smart Lock integration."""
+
 from __future__ import annotations
 
 import logging
 from collections.abc import Callable
 from copy import deepcopy
 from functools import partial
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_EMAIL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import CONF_DEVICE_SERIAL, CONF_EMAIL, CONF_ENABLE_REMOTE_UNLOCK
+from .const import (
+    CONF_DEVICE_SERIAL,
+    CONF_ENABLE_REMOTE_UNLOCK,
+    CONF_TOKEN,
+    HA_EVENT_EZVIZ_SMART_LOCK,
+)
 from .mqtt_client import EzvizMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
+
+EZVIZ_HASSIO_TERMINAL_NAME = "hassio"
+EZVIZ_REMOTE_UNLOCK_TYPE = "unLinkIPC"
 
 
 class EzvizCoordinator:
     """Coordinator for the EZVIZ Smart Lock integration."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
+        """Initialize the EZVIZ coordinator."""
         self.hass = hass
         self.entry = entry
-        self._callbacks: list[Callable[[dict], None]] = []
+        self._callbacks: list[Callable[[dict[str, Any]], None]] = []
         self.mqtt = EzvizMQTTClient(hass, entry, self)
 
     async def async_setup(self) -> None:
@@ -35,13 +48,17 @@ class EzvizCoordinator:
     async def async_stop(self) -> None:
         """Stop MQTT client."""
         await self.mqtt.stop()
+        self._callbacks.clear()
 
     @property
     def remote_unlock_enabled(self) -> bool:
         """Return if remote unlock is enabled."""
         return bool(self.entry.data.get(CONF_ENABLE_REMOTE_UNLOCK, False))
 
-    def register_callback(self, callback: Callable[[dict], None]) -> Callable[[], None]:
+    def register_callback(
+        self,
+        callback: Callable[[dict[str, Any]], None],
+    ) -> Callable[[], None]:
         """Register a callback for EZVIZ events."""
         self._callbacks.append(callback)
 
@@ -51,56 +68,62 @@ class EzvizCoordinator:
 
         return unsubscribe
 
-    def handle_event(self, event_data: dict) -> None:
+    def handle_event(self, event_data: dict[str, Any]) -> None:
         """Handle an event received from MQTT."""
         self.hass.loop.call_soon_threadsafe(
             self._handle_event_in_hass_loop,
             event_data,
         )
 
-    def _handle_event_in_hass_loop(self, event_data: dict) -> None:
+    def _handle_event_in_hass_loop(self, event_data: dict[str, Any]) -> None:
         """Handle an event inside the Home Assistant event loop."""
         self.fire_event(event_data)
         self.notify_callbacks(event_data)
 
-    def fire_event(self, event_data: dict) -> None:
+    def fire_event(self, event_data: dict[str, Any]) -> None:
         """Fire an EZVIZ Smart Lock event on the Home Assistant bus."""
-        self.hass.bus.fire("ezviz_smart_lock_event", event_data)
+        self.hass.bus.fire(HA_EVENT_EZVIZ_SMART_LOCK, event_data)
 
-    def notify_callbacks(self, event_data: dict) -> None:
+    def notify_callbacks(self, event_data: dict[str, Any]) -> None:
         """Notify registered callbacks."""
         for callback in list(self._callbacks):
             try:
                 callback(event_data)
-            except Exception as err:
-                _LOGGER.exception("Error in EZVIZ Smart Lock callback: %s", err)
+            except Exception:
+                _LOGGER.exception("Error in EZVIZ Smart Lock callback")
 
-    async def async_update_token(self, token: dict) -> None:
+    async def async_update_token(self, token: dict[str, Any]) -> None:
         """Persist a refreshed EZVIZ token."""
         data = deepcopy(dict(self.entry.data))
 
-        if data.get("token") == token:
+        if data.get(CONF_TOKEN) == token:
             return
 
-        data["token"] = token
+        data[CONF_TOKEN] = token
 
         self.hass.config_entries.async_update_entry(
             self.entry,
             data=data,
         )
 
-        self.entry = self.hass.config_entries.async_get_entry(self.entry.entry_id)
+        updated_entry = self.hass.config_entries.async_get_entry(self.entry.entry_id)
+
+        if updated_entry is not None:
+            self.entry = updated_entry
 
         _LOGGER.debug("EZVIZ token updated")
 
     def _select_terminal_bind_code(self) -> str:
         """Select the bind code required for DL05 remote unlock."""
+        if self.mqtt.client is None:
+            raise HomeAssistantError("EZVIZ client is not connected")
+
         current_feature_code = self.mqtt.client._token.get("feature_code")
 
         terminals_response = self.mqtt.client.get_terminals()
         terminals = terminals_response.get("terminals", [])
 
-        valid_terminals = []
+        valid_terminals: list[dict[str, str]] = []
 
         for terminal in terminals:
             sign = str(terminal.get("sign") or "").strip()
@@ -108,6 +131,11 @@ class EzvizCoordinator:
             name = str(
                 terminal.get("name") or terminal.get("terminalName") or user_id
             ).strip()
+            last_modify = str(
+                terminal.get("lastModifytime")
+                or terminal.get("lastModifyTime")
+                or ""
+            )
 
             if not sign or not user_id:
                 continue
@@ -117,11 +145,7 @@ class EzvizCoordinator:
                     "sign": sign,
                     "user_id": user_id,
                     "name": name,
-                    "last_modify": str(
-                        terminal.get("lastModifytime")
-                        or terminal.get("lastModifyTime")
-                        or ""
-                    ),
+                    "last_modify": last_modify,
                 }
             )
 
@@ -132,7 +156,7 @@ class EzvizCoordinator:
             terminal
             for terminal in valid_terminals
             if terminal["sign"] != current_feature_code
-            and terminal["name"].casefold() != "hassio"
+            and terminal["name"].casefold() != EZVIZ_HASSIO_TERMINAL_NAME
         ]
 
         selected = max(
@@ -148,25 +172,28 @@ class EzvizCoordinator:
 
         return f"{selected['sign']}{selected['user_id']}"
 
-    async def async_remote_unlock(self) -> dict:
+    async def async_remote_unlock(self) -> dict[str, Any]:
         """Execute remote unlock."""
         if not self.remote_unlock_enabled:
             raise HomeAssistantError("Remote unlock is disabled")
 
-        if not self.mqtt.client:
+        if self.mqtt.client is None:
             raise HomeAssistantError("EZVIZ client is not connected")
 
         serial = self.entry.data[CONF_DEVICE_SERIAL]
 
         bind_code = await self.hass.async_add_executor_job(
-            self._select_terminal_bind_code
+            self._select_terminal_bind_code,
         )
 
         random_response = await self.hass.async_add_executor_job(
             partial(
                 self.mqtt.client._request_json,
                 "PUT",
-                f"/v3/iot-feature/action/{serial}/DoorLock/0/DoorLockMgr/QueryRemoteUnlockRandomCode",
+                (
+                    f"/v3/iot-feature/action/{serial}/DoorLock/0/DoorLockMgr/"
+                    "QueryRemoteUnlockRandomCode"
+                ),
                 json_body={"value": {}},
             )
         )
@@ -181,7 +208,7 @@ class EzvizCoordinator:
                 "unLockInfo": {
                     "bindCode": bind_code,
                     "randomCode": random_code,
-                    "type": "unLinkIPC",
+                    "type": EZVIZ_REMOTE_UNLOCK_TYPE,
                     "userName": self.entry.data.get(CONF_EMAIL),
                 }
             }
@@ -191,7 +218,10 @@ class EzvizCoordinator:
             partial(
                 self.mqtt.client._request_json,
                 "PUT",
-                f"/v3/iot-feature/action/{serial}/DoorLock/0/DoorLockMgr/RemoteUnlockReq",
+                (
+                    f"/v3/iot-feature/action/{serial}/DoorLock/0/DoorLockMgr/"
+                    "RemoteUnlockReq"
+                ),
                 json_body=unlock_payload,
             )
         )

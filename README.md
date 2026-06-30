@@ -1,6 +1,5 @@
 <div align="center">
 
-
 # EZVIZ Smart Lock
 
 Real-time Home Assistant integration for EZVIZ Smart Locks using the official EZVIZ Cloud APIs and MQTT Push events.
@@ -9,38 +8,39 @@ Supports automatic token renewal, two-factor authentication (MFA), real-time eve
 
 </div>
 
+> **⚠️ Important**
+>
+> This integration is **not affiliated with or endorsed by EZVIZ**.
+> It uses the official EZVIZ cloud APIs to integrate supported smart locks with Home Assistant.
 ---
 
 <p align="center">
 
-<img src="https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-blue?style=for-the-badge">
-<img src="https://img.shields.io/badge/MQTT-Real--Time-success?style=for-the-badge">
+<img src="https://img.shields.io/badge/Home_Assistant-Custom_Integration-41BDF5?style=for-the-badge&logo=homeassistant&logoColor=white">
+
+<img src="https://img.shields.io/badge/MQTT-Real_Time-success?style=for-the-badge">
+
 <img src="https://img.shields.io/badge/MFA-Supported-green?style=for-the-badge">
-<img src="https://img.shields.io/badge/Remote%20Unlock-Optional-orange?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/Remote_Unlock-Optional-orange?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge">
 
 </p>
 
 ---
 
-## Features
-
-✅ Real-time MQTT events
-
-✅ Native Home Assistant Lock entity
-
-✅ Remote Unlock (optional)
-
-✅ Automatic EZVIZ token renewal
-
-✅ Two-Factor Authentication (MFA)
-
-✅ Home Assistant Config Flow
-
-✅ English and Portuguese translations
-
-✅ Automatic MQTT reconnection
-
-✅ Device Registry support
+| Feature | Status |
+|---------|:------:|
+| Real-time MQTT events | ✅ |
+| Home Assistant Lock entity | ✅ |
+| Automatic token renewal | ✅ |
+| MQTT automatic reconnection | ✅ |
+| Remote Unlock | ✅ |
+| Two-Factor Authentication (MFA) | ✅ |
+| Config Flow | ✅ |
+| Device Registry | ✅ |
+| English & Portuguese | ✅ |
 
 ---
 
